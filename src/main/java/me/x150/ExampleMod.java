@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -104,33 +105,40 @@ public class ExampleMod implements ModInitializer {
             System.exit(1);
         }
     }
-    record Bruh(Stream<Path> p, FileSystem origin) {}
-    private Bruh findNatives() throws IOException, URISyntaxException {
+    private Stream<Path> findNatives() throws IOException, URISyntaxException {
         URI uri = ExampleMod.class.getClassLoader().getResource(nativesBasePath).toURI();
         Path myPath;
         FileSystem c = null;
         if (uri.getScheme().equals("jar")) {
-            c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            try {
+                c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            } catch (FileSystemAlreadyExistsException e) {
+                c = FileSystems.getFileSystem(uri);
+            }
             myPath = c.getPath(nativesBasePath);
         } else {
             myPath = Paths.get(uri);
         }
 
-        return new Bruh(Files.walk(myPath), c);
+        return Files.walk(myPath);
     }
 
-    private Bruh findUlResources() throws IOException, URISyntaxException {
+    private Stream<Path> findUlResources() throws IOException, URISyntaxException {
         URI uri = ExampleMod.class.getClassLoader().getResource(resourcesPath).toURI();
         Path myPath;
         FileSystem c = null;
         if (uri.getScheme().equals("jar")) {
-            c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            try {
+                c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            } catch (FileSystemAlreadyExistsException e) {
+                c = FileSystems.getFileSystem(uri);
+            }
             myPath = c.getPath(resourcesPath);
         } else {
             myPath = Paths.get(uri);
         }
 
-        return new Bruh(Files.walk(myPath), c);
+        return Files.walk(myPath);
     }
 
     void initUL() throws Throwable {
@@ -145,8 +153,7 @@ public class ExampleMod implements ModInitializer {
         }
         System.setProperty("java.library.path", libpath);
 
-        Bruh natives = findNatives();
-        Iterator<Path> iterator = natives.p.iterator();
+        Iterator<Path> iterator = findNatives().iterator();
         while (iterator.hasNext()) {
             Path path = iterator.next();
             if (Files.isDirectory(path)) continue; // dont need
@@ -161,10 +168,8 @@ public class ExampleMod implements ModInitializer {
                 }
             }
         }
-        if (natives.origin != null) natives.origin.close();
 
-        Bruh ulResources = findUlResources();
-        iterator = ulResources.p.iterator();
+        iterator = findUlResources().iterator();
         while (iterator.hasNext()) {
             Path path = iterator.next();
             if (Files.isDirectory(path)) continue; // dont need
@@ -179,7 +184,6 @@ public class ExampleMod implements ModInitializer {
                 }
             }
         }
-        if (ulResources.origin != null) ulResources.origin.close();
 
         LOGGER.info("Extracting UltralightJava");
         UltralightJava.extractNativeLibrary(tempDirectory);
