@@ -1,6 +1,5 @@
 package me.x150.ul;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -12,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
 public class HtmlScreen extends Screen {
     String source;
     UltralightViewable ulm;
+
     public HtmlScreen(String url) {
         super(Text.literal(""));
         this.source = url;
@@ -31,7 +31,9 @@ public class HtmlScreen extends Screen {
     }
 
     public void reload() {
-        if (this.ulm != null) this.ulm.getWebController().reload();
+        if (this.ulm != null) {
+            this.ulm.getWebController().reload();
+        }
     }
 
     @Override

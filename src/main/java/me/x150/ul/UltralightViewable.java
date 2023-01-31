@@ -4,22 +4,13 @@ package me.x150.ul;
  * A viewable ultralight window
  */
 public class UltralightViewable {
-    CursorAdapter cursorManager;
     private final WebController webController;
-
-
-    /**
-     * Gets the web controller
-     * @return The web controller
-     */
-    public WebController getWebController() {
-        return webController;
-    }
-
+    CursorAdapter cursorManager;
     long window;
 
     /**
      * Creates a new viewable
+     *
      * @param window The window to bind to
      */
     public UltralightViewable(long window) {
@@ -31,7 +22,17 @@ public class UltralightViewable {
     }
 
     /**
+     * Gets the web controller
+     *
+     * @return The web controller
+     */
+    public WebController getWebController() {
+        return webController;
+    }
+
+    /**
      * Resizes this view
+     *
      * @param w Width
      * @param h Height
      */
@@ -61,6 +62,7 @@ public class UltralightViewable {
 
     /**
      * Tells UL that focus has shifted away or to this window
+     *
      * @param focus Whether the focus shifted onto this window or away from it
      */
     public void focusCallback(boolean focus) {

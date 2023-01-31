@@ -15,12 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ExampleFileSystem implements UltralightFileSystem {
+    // Map from handle to file channel, see class description for more details.
+    private final Map<Long, FileChannel> openFiles = new HashMap<>();
     // Dumb implementation of a counter, but this will probably always be enough...
     // unless you have 9,223,372,036,854,775,807 files open. Please reconsider your application then!
     private long nextFileHandle;
-
-    // Map from handle to file channel, see class description for more details.
-    private final Map<Long, FileChannel> openFiles = new HashMap<>();
 
     /**
      * This is called by Ultralight to check if a given file exists.
@@ -28,6 +27,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      * Note that Ultralight might pass invalid paths, so check for them!
      *
      * @param path The path to check for a file at
+     *
      * @return {@code true} if the file exists, {@code false} otherwise
      */
     @Override
@@ -43,6 +43,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      * Retrieves the file size for a given handle. Return -1 if the size can't be retrieved.
      *
      * @param handle The handle of the file to get the size of
+     *
      * @return The size of the opened handle, or {@code -1}, if the size could not be determined
      */
     @Override
@@ -70,6 +71,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      * Retrieves the mime type of a given file. Ultralight needs this in order to determine how to load content.
      *
      * @param path The path to check the mime type for
+     *
      * @return The mime type of the file at the given path, or {@code null}, if the mime type could not be determined
      */
     @Override
@@ -100,6 +102,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      *
      * @param path           The path of the file to open
      * @param openForWriting Whether the file should be opened for writing
+     *
      * @return A handle to the opened file, or {@link #INVALID_FILE_HANDLE} if the file could not be opened
      */
     @Override
@@ -169,6 +172,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      * @param handle The handle of the file to read
      * @param data   Buffer to write read data into
      * @param length The amount of bytes to read from the file
+     *
      * @return The amount of bytes read from the file
      */
     @Override
@@ -189,7 +193,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
         }
 
         try {
-            long read = channel.read((ByteBuffer) data.slice().limit((int) length));
+            long read = channel.read(data.slice().limit((int) length));
             log(false, "Read %d bytes out of %d requested from handle %d", read, length, handle);
             return read;
         } catch (IOException e) {
@@ -203,6 +207,7 @@ public class ExampleFileSystem implements UltralightFileSystem {
      * Helper method to scratch malformed paths
      *
      * @param path The path to convert to an NIO path
+     *
      * @return The converted path, or {@code null}, if the path failed to convert
      */
     private Path getPath(String path) {

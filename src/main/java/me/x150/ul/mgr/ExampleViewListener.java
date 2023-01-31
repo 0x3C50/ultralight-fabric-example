@@ -11,9 +11,11 @@ import me.x150.ul.CursorAdapter;
 
 public class ExampleViewListener implements UltralightViewListener {
     CursorAdapter ca;
+
     public ExampleViewListener(CursorAdapter ca) {
         this.ca = ca;
     }
+
     @Override
     public void onChangeTitle(String title) {
 

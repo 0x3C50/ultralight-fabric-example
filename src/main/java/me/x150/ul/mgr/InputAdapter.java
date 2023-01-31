@@ -59,9 +59,7 @@ public class InputAdapter {
         UltralightKey translatedKey = glfwToUltralightKey(key);
 
         // Build the event
-        UltralightKeyEvent event = new UltralightKeyEvent()
-            .type(action == GLFW_PRESS || action == GLFW_REPEAT ?
-                UltralightKeyEventType.RAW_DOWN : UltralightKeyEventType.UP)
+        UltralightKeyEvent event = new UltralightKeyEvent().type(action == GLFW_PRESS || action == GLFW_REPEAT ? UltralightKeyEventType.RAW_DOWN : UltralightKeyEventType.UP)
             .virtualKeyCode(translatedKey)
             .nativeKeyCode(scancode)
             .keyIdentifier(UltralightKeyEvent.getKeyIdentifierFromVirtualKeyCode(translatedKey))
@@ -73,10 +71,7 @@ public class InputAdapter {
         if ((action == GLFW_PRESS || action == GLFW_REPEAT) && (key == GLFW_KEY_ENTER || key == GLFW_KEY_TAB)) {
             // These keys need to be translated specially
             String text = key == GLFW_KEY_ENTER ? "\r" : "\t";
-            UltralightKeyEvent extraEvent = new UltralightKeyEvent()
-                .type(UltralightKeyEventType.CHAR)
-                .text(text)
-                .unmodifiedText(text);
+            UltralightKeyEvent extraEvent = new UltralightKeyEvent().type(UltralightKeyEventType.CHAR).text(text).unmodifiedText(text);
 
             // Fire the event
             view.fireKeyEvent(extraEvent);
@@ -94,10 +89,7 @@ public class InputAdapter {
         String text = new String(Character.toChars(codepoint));
 
         // Create the event
-        UltralightKeyEvent event = new UltralightKeyEvent()
-            .type(UltralightKeyEventType.CHAR)
-            .text(text)
-            .unmodifiedText(text);
+        UltralightKeyEvent event = new UltralightKeyEvent().type(UltralightKeyEventType.CHAR).text(text).unmodifiedText(text);
 
         // Fire the event
         view.fireKeyEvent(event);
@@ -112,10 +104,7 @@ public class InputAdapter {
      */
     public void cursorPosCallback(long window, double x, double y) {
         // Create the event
-        UltralightMouseEvent event = new UltralightMouseEvent()
-            .x((int) (x * xScale))
-            .y((int) (y * yScale))
-            .type(UltralightMouseEventType.MOVED);
+        UltralightMouseEvent event = new UltralightMouseEvent().x((int) (x * xScale)).y((int) (y * yScale)).type(UltralightMouseEventType.MOVED);
 
         // Translate the mouse state to the event
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -147,7 +136,7 @@ public class InputAdapter {
             DoubleBuffer buffer = stack.callocDouble(2);
 
             // Retrieve the current cursor pos
-            glfwGetCursorPos(window, (DoubleBuffer) buffer.slice().position(0), (DoubleBuffer) buffer.slice().position(1));
+            glfwGetCursorPos(window, buffer.slice().position(0), buffer.slice().position(1));
 
             // Extract the x and y position
             x = buffer.get(0);
@@ -155,8 +144,7 @@ public class InputAdapter {
         }
 
         // Create the event
-        UltralightMouseEvent event = new UltralightMouseEvent()
-            .x((int) (x))
+        UltralightMouseEvent event = new UltralightMouseEvent().x((int) (x))
             .y((int) (y))
             .type(action == GLFW_PRESS ? UltralightMouseEventType.DOWN : UltralightMouseEventType.UP);
 
@@ -180,10 +168,7 @@ public class InputAdapter {
      */
     public void scrollCallback(long window, double xDelta, double yDelta) {
         // Create the event
-        UltralightScrollEvent event = new UltralightScrollEvent()
-            .deltaX((int) xDelta * 32)
-            .deltaY((int) yDelta * 32)
-            .type(UltralightScrollEventType.BY_PIXEL);
+        UltralightScrollEvent event = new UltralightScrollEvent().deltaX((int) xDelta * 32).deltaY((int) yDelta * 32).type(UltralightScrollEventType.BY_PIXEL);
 
         // Fire the event
         view.fireScrollEvent(event);
@@ -207,6 +192,7 @@ public class InputAdapter {
      * Translates GLFW key modifiers to Ultralight key modifiers.
      *
      * @param modifiers The GLFW key modifiers to translate
+     *
      * @return The translated Ultralight key modifiers
      */
     private int glfwToUltralightModifiers(int modifiers) {
@@ -235,6 +221,7 @@ public class InputAdapter {
      * Translates a GLFW key code to an {@link UltralightKey}.
      *
      * @param key The GLFW key code to translate
+     *
      * @return The translated Ultralight key, or {@link UltralightKey#UNKNOWN}, if the key could not be translated
      */
     private UltralightKey glfwToUltralightKey(int key) {

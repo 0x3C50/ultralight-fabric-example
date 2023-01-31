@@ -26,18 +26,18 @@ public class WebController {
     private final PlatformManager platform;
     private int glTexture = -1;
     private UltralightView view;
+    private InputAdapter inputAdapter;
+
+    public WebController(CursorAdapter cursorManager) {
+        this.cursorManager = cursorManager;
+        platform = PlatformManager.instance();
+    }
 
     /**
      * Reloads the view
      */
     public void reload() {
         view.reload();
-    }
-
-    private InputAdapter inputAdapter;
-    public WebController(CursorAdapter cursorManager) {
-        this.cursorManager = cursorManager;
-        platform = PlatformManager.instance();
     }
 
     public InputAdapter getInputAdapter() {
@@ -51,13 +51,8 @@ public class WebController {
         platform.getRenderer().logMemoryUsage();
 
         ExampleMod.LOGGER.info("Creating view");
-        this.view = platform.getRenderer().createView(300, 300,
-            new UltralightViewConfig()
-                .initialDeviceScale(1.0)
-                .isTransparent(true)
-                .enableJavascript(true)
-                .initialFocus(true)
-        );
+        this.view = platform.getRenderer()
+            .createView(300, 300, new UltralightViewConfig().initialDeviceScale(1.0).isTransparent(true).enableJavascript(true).initialFocus(true));
         ExampleViewListener viewListener = new ExampleViewListener(this.cursorManager);
         this.view.setViewListener(viewListener);
 
@@ -66,6 +61,7 @@ public class WebController {
 
     /**
      * Navigates to a certain URL
+     *
      * @param url The url
      */
     public void loadURL(String url) {
@@ -122,17 +118,7 @@ public class WebController {
 
             if (dirtyBounds.width() == width && dirtyBounds.height() == height) {
                 // Update full image
-                glTexImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    GL_RGBA8,
-                    width,
-                    height,
-                    0,
-                    GL_BGRA,
-                    GL_UNSIGNED_INT_8_8_8_8_REV,
-                    imageData
-                );
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, imageData);
             } else {
                 // Update partial image
                 int x = dirtyBounds.x();
@@ -141,13 +127,7 @@ public class WebController {
                 int dirtyHeight = dirtyBounds.height();
                 int startOffset = (int) (y * bitmap.rowBytes() + x * 4);
 
-                glTexSubImage2D(
-                    GL_TEXTURE_2D,
-                    0,
-                    x, y, dirtyWidth, dirtyHeight,
-                    GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV,
-                    imageData.position(startOffset)
-                );
+                glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, dirtyWidth, dirtyHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, imageData.position(startOffset));
             }
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
@@ -165,27 +145,11 @@ public class WebController {
         RenderSystem.enableBlend();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-        bufferBuilder
-            .vertex(0.0, height, 0.0)
-            .texture(0f, scaleFactor)
-            .color(255, 255, 255, 255)
-            .next();
-        bufferBuilder
-            .vertex(width, height, 0.0)
-            .texture(scaleFactor, scaleFactor)
-            .color(255, 255, 255, 255)
-            .next();
-        bufferBuilder
-            .vertex(width, 0.0, 0.0)
-            .texture(scaleFactor, 0.0f)
-            .color(255, 255, 255, 255)
-            .next();
+        bufferBuilder.vertex(0.0, height, 0.0).texture(0f, scaleFactor).color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(width, height, 0.0).texture(scaleFactor, scaleFactor).color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(width, 0.0, 0.0).texture(scaleFactor, 0.0f).color(255, 255, 255, 255).next();
 
-        bufferBuilder
-            .vertex(0.0, 0.0, 0.0)
-            .texture(0.0f, 0.0f)
-            .color(255, 255, 255, 255)
-            .next();
+        bufferBuilder.vertex(0.0, 0.0, 0.0).texture(0.0f, 0.0f).color(255, 255, 255, 255).next();
 
         tessellator.draw();
         RenderSystem.disableBlend();
