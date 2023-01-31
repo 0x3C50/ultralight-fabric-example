@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
+body {
+    font-family: 'Nunito';
+}
+h1 {
+    color: red;
+    font-family: 'Nunito';
+}
+p { color: white; }
+button {
+    padding: 10px;
+    border: none;
+    background-color: blue;
+    border-radius: 10px;
+}
+input {
+    padding: 10px;
+    border: none;
+    background-color: rgb(100, 100, 20);
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+}
+input:active {
+    outline: none;
+    border: none;
+}

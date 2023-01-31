@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "ultralight-fabric",
+	"version": "${version}",
+	"name": "Fabric Ultralight example",
+	"description": "An example implementation of ultralight",
+	"authors": [
+		"0x150"
+	],
+	"contact": {
+		"sources": "https://github.com/0x3C50/ultralight-fabric-example"
+	},
+	"license": "GNU-GPL-3",
+	"icon": "assets/ultralight-fabric/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"me.x150.ExampleMod"
+		]
+	},
+	"mixins": [
+		"ultralight-fabric.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.13",
+		"minecraft": "~1.19.3",
+		"java": ">=17"
+	},
+	"suggests": {
+
+	}
+}
