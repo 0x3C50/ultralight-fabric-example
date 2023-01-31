@@ -9,24 +9,34 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public class ExampleMod implements ModInitializer {
     // This logger is used to write text to the console and the log file.
     // It is considered best practice to use your mod id as the logger's name.
     // That way, it's clear which mod wrote info, warnings, and errors.
-    public static final Logger LOGGER = LoggerFactory.getLogger("fuck-it");
+    public static final Logger LOGGER = LoggerFactory.getLogger("ultralight-fabric");
     public static Path resources;
     public static Path baseTempDir;
     static Path tempDirectory;
-    String nativesBasePath = "native-binaries/";
+    String nativesBasePath = "natives";
     String resourcesPath = "ul-resources";
 
     public static Path requestTempDir(String name) {
@@ -94,29 +104,33 @@ public class ExampleMod implements ModInitializer {
             System.exit(1);
         }
     }
-
-    private File[] findNatives() throws IOException {
-        Enumeration<URL> resources = ExampleMod.class.getClassLoader().getResources(nativesBasePath);
-        while (resources.hasMoreElements()) {
-            URL url = resources.nextElement();
-            File file = new File(url.getFile());
-            if (file.isDirectory()) {
-                return file.listFiles();
-            }
+    record Bruh(Stream<Path> p, FileSystem origin) {}
+    private Bruh findNatives() throws IOException, URISyntaxException {
+        URI uri = ExampleMod.class.getClassLoader().getResource(nativesBasePath).toURI();
+        Path myPath;
+        FileSystem c = null;
+        if (uri.getScheme().equals("jar")) {
+            c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            myPath = c.getPath(nativesBasePath);
+        } else {
+            myPath = Paths.get(uri);
         }
-        return null;
+
+        return new Bruh(Files.walk(myPath), c);
     }
 
-    private File[] findUlResources() throws IOException {
-        Enumeration<URL> resources = ExampleMod.class.getClassLoader().getResources(resourcesPath);
-        while (resources.hasMoreElements()) {
-            URL url = resources.nextElement();
-            File file = new File(url.getFile());
-            if (file.isDirectory()) {
-                return file.listFiles();
-            }
+    private Bruh findUlResources() throws IOException, URISyntaxException {
+        URI uri = ExampleMod.class.getClassLoader().getResource(resourcesPath).toURI();
+        Path myPath;
+        FileSystem c = null;
+        if (uri.getScheme().equals("jar")) {
+            c = FileSystems.newFileSystem(uri, Collections.emptyMap());
+            myPath = c.getPath(resourcesPath);
+        } else {
+            myPath = Paths.get(uri);
         }
-        return null;
+
+        return new Bruh(Files.walk(myPath), c);
     }
 
     void initUL() throws Throwable {
@@ -131,12 +145,15 @@ public class ExampleMod implements ModInitializer {
         }
         System.setProperty("java.library.path", libpath);
 
-        for (File aNative : Objects.requireNonNull(findNatives())) {
-            Path path = aNative.toPath();
+        Bruh natives = findNatives();
+        Iterator<Path> iterator = natives.p.iterator();
+        while (iterator.hasNext()) {
+            Path path = iterator.next();
+            if (Files.isDirectory(path)) continue; // dont need
             String s = path.getFileName().toString();
             Path tf = tempDirectory.resolve(s);
-            LOGGER.info(aNative + " -> " + tf);
-            try (FileInputStream fis = new FileInputStream(aNative); FileOutputStream fos = new FileOutputStream(tf.toFile())) {
+            LOGGER.info(path + " -> " + tf);
+            try (InputStream fis = Files.newInputStream(path); OutputStream fos = Files.newOutputStream(tf)) {
                 byte[] buffer = new byte[512];
                 int r;
                 while ((r = fis.read(buffer, 0, buffer.length)) != -1) {
@@ -144,13 +161,17 @@ public class ExampleMod implements ModInitializer {
                 }
             }
         }
+        if (natives.origin != null) natives.origin.close();
 
-        for (File aNative : Objects.requireNonNull(findUlResources())) {
-            Path path = aNative.toPath();
+        Bruh ulResources = findUlResources();
+        iterator = ulResources.p.iterator();
+        while (iterator.hasNext()) {
+            Path path = iterator.next();
+            if (Files.isDirectory(path)) continue; // dont need
             String s = path.getFileName().toString();
             Path tf = resources.resolve(s);
-            LOGGER.info(aNative + " -> " + tf);
-            try (FileInputStream fis = new FileInputStream(aNative); FileOutputStream fos = new FileOutputStream(tf.toFile())) {
+            LOGGER.info(path + " -> " + tf);
+            try (InputStream fis = Files.newInputStream(path); OutputStream fos = Files.newOutputStream(tf)) {
                 byte[] buffer = new byte[512];
                 int r;
                 while ((r = fis.read(buffer, 0, buffer.length)) != -1) {
@@ -158,6 +179,7 @@ public class ExampleMod implements ModInitializer {
                 }
             }
         }
+        if (ulResources.origin != null) ulResources.origin.close();
 
         LOGGER.info("Extracting UltralightJava");
         UltralightJava.extractNativeLibrary(tempDirectory);

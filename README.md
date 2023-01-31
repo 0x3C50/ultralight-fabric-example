@@ -7,7 +7,7 @@ Ultralight is a bit picky, and I can't explain it in full here, but the source c
 ## Can I use this?
 Generally yes, but you might have to fix certain things if you don't use linux. I only tested this on x64 linux, your mileage may vary.
 
-If you need to replace the drivers, the commit hash they're built on is `5011dbf`. All files in `src/main/resources/native-binaries` will be extracted at runtime, to a cache location, and provided to ultralight. All files in `src/main/resources/ul-resources` will be extracted as well, and provided to ultralight as resources.
+If you need to replace the drivers, the commit hash they're built on is `5011dbf`. All files in `src/main/resources/natives` will be extracted at runtime, to a cache location, and provided to ultralight. All files in `src/main/resources/ul-resources` will be extracted as well, and provided to ultralight as resources.
 
 ### How can I use this?
 You can just use the same setup for the most part, the `HtmlScreen` class is an example implementation of ultralight into the Screen api.
