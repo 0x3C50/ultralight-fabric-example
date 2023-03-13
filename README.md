@@ -19,6 +19,6 @@ Things like `new HtmlScreen("https://google.com")` work as well, but modern and 
 Remember to cache the screens you create. You don't need to make a new screen each time you want to open one. You can just reuse the instance, and `HtmlScreen` is made to do exactly that.
 
 ## How long did this take you?
-To implement? 4-5 hours
+To implement? about 4-5 hours
 
-To gather all the knowledge required to implement it? (Unironically) 2 years of attempts from time to time, until I finally got it.
+To actually get to a point where I've had enough knowledge to implement it? overall, about 2 weeks of research and fumbling around
